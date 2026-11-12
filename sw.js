@@ -1,4 +1,4 @@
-const CACHE_NAME = 'riverhomes-invoicer-v3';
+const CACHE_NAME = 'riverhomes-invoicer-v4';
 const SHELL_ASSETS = [
   './',
   './index.html',

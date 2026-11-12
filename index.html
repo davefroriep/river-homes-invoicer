@@ -657,7 +657,7 @@
 
   <footer>
     <div>River Homes, LLC • Toms River, NJ • NJ HIC License #13VH06549100</div>
-    <div class="rev-badge">Rev v1.2 — 2026-11-11 21:20</div>
+    <div class="rev-badge">Rev v1.3 — 2026-11-11 21:51</div>
   </footer>
 
   <script>
@@ -884,14 +884,29 @@
       document.getElementById('pp-cancel').value = `${baseReturnUrl}&canceled=1${hashFragment}`;
 
       const stdForm = document.getElementById('paypal-std-form');
-      stdForm.addEventListener('submit', () => {
-        sendNtfyPush(inv.ntfy, {
-          title: `Checkout Started: Invoice #${inv.invoice_number}`,
-          message: `${cli.name} clicked Pay Online (${totalFmt}) for Invoice #${inv.invoice_number} -> Redirecting to PayPal`,
-          priority: 4,
-          tags: ['credit_card', 'arrow_right']
+      if (pp.paypal_me_handle) {
+        const cleanHandle = String(pp.paypal_me_handle).replace(/^@/, '').trim();
+        const pmUrl = `https://www.paypal.com/paypalme/${encodeURIComponent(cleanHandle)}/${Number(inv.total).toFixed(2)}USD`;
+        stdForm.addEventListener('submit', (ev) => {
+          ev.preventDefault();
+          sendNtfyPush(inv.ntfy, {
+            title: `Checkout Started: Invoice #${inv.invoice_number}`,
+            message: `${cli.name} clicked Pay Online (${totalFmt}) for Invoice #${inv.invoice_number} -> Opening PayPal.Me`,
+            priority: 4,
+            tags: ['credit_card', 'arrow_right']
+          });
+          window.location.href = pmUrl;
         });
-      });
+      } else {
+        stdForm.addEventListener('submit', () => {
+          sendNtfyPush(inv.ntfy, {
+            title: `Checkout Started: Invoice #${inv.invoice_number}`,
+            message: `${cli.name} clicked Pay Online (${totalFmt}) for Invoice #${inv.invoice_number} -> Redirecting to PayPal`,
+            priority: 4,
+            tags: ['credit_card', 'arrow_right']
+          });
+        });
+      }
 
       // Optional Inline PayPal JS SDK Smart Buttons (if client_id configured)
       if (pp.client_id) {
