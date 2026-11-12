@@ -615,6 +615,7 @@
         </div>
 
         <div id="paypal-smart-container" style="display:none;"></div>
+        <div id="paypal-error-box" style="display:none; margin-top:12px; padding:12px 14px; border-radius:6px; background:#fffbeb; border:1px solid #f59e0b; color:#92400e; font-size:13.5px;"></div>
 
         <form id="paypal-std-form" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
           <input type="hidden" name="cmd" value="_xclick" />
@@ -657,7 +658,7 @@
 
   <footer>
     <div>River Homes, LLC • Toms River, NJ • NJ HIC License #13VH06549100</div>
-    <div class="rev-badge">Rev v1.3 — 2026-11-11 21:51</div>
+    <div class="rev-badge">Rev v1.4 — 2026-11-11 22:14</div>
   </footer>
 
   <script>
@@ -908,45 +909,84 @@
         });
       }
 
-      // Optional Inline PayPal JS SDK Smart Buttons (if client_id configured)
+      // Inline PayPal Orders v2 JS SDK Smart Buttons (PayPal + Venmo + Guest Debit/Credit Card)
       if (pp.client_id) {
+        stdForm.style.display = 'none';
+        const smartBox = document.getElementById('paypal-smart-container');
+        const errBox = document.getElementById('paypal-error-box');
+        smartBox.style.display = 'block';
+        smartBox.innerHTML = '<div style="text-align:center;padding:18px;color:#64748b;font-size:14px;">Loading secure PayPal, Venmo &amp; Card checkout…</div>';
+
         const sdkScript = document.createElement('script');
-        sdkScript.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(pp.client_id)}&currency=USD&enable-funding=venmo,card`;
+        sdkScript.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(pp.client_id)}&currency=USD&intent=capture&enable-funding=venmo,card`;
         sdkScript.onload = () => {
           if (window.paypal) {
-            stdForm.style.display = 'none';
-            const smartBox = document.getElementById('paypal-smart-container');
-            smartBox.style.display = 'block';
+            smartBox.innerHTML = '';
             window.paypal.Buttons({
+              style: {
+                layout: 'vertical',
+                shape: 'rect',
+                label: 'pay'
+              },
               createOrder: (data, actions) => {
+                errBox.style.display = 'none';
+                const funding = data && data.fundingSource ? String(data.fundingSource).toUpperCase() : 'PAYPAL/CARD';
                 sendNtfyPush(inv.ntfy, {
                   title: `Checkout Started: Invoice #${inv.invoice_number}`,
-                  message: `${cli.name} opened PayPal/Card checkout (${totalFmt})`,
+                  message: `${cli.name} opened ${funding} checkout (${totalFmt}) for Invoice #${inv.invoice_number}`,
                   priority: 4,
                   tags: ['credit_card']
                 });
+                const unit = {
+                  description: `River Homes, LLC - Invoice #${inv.invoice_number} (${cli.name || 'Client'})`,
+                  custom_id: String(inv.invoice_number),
+                  amount: {
+                    currency_code: 'USD',
+                    value: Number(inv.total).toFixed(2)
+                  }
+                };
+                if (!inv.is_test) {
+                  unit.invoice_id = `RH-${inv.invoice_number}`;
+                }
                 return actions.order.create({
-                  purchase_units: [{
-                    description: `River Homes LLC - Invoice #${inv.invoice_number}`,
-                    invoice_id: String(inv.invoice_number),
-                    amount: { value: Number(inv.total).toFixed(2) }
-                  }]
+                  intent: 'CAPTURE',
+                  application_context: {
+                    brand_name: 'River Homes, LLC',
+                    shipping_preference: 'NO_SHIPPING',
+                    user_action: 'PAY_NOW'
+                  },
+                  purchase_units: [unit]
                 });
               },
               onApprove: (data, actions) => {
                 return actions.order.capture().then((details) => {
                   const today = new Date().toLocaleDateString('en-US');
-                  markUiAsPaid(inv, `PayPal / Card (Txn ${details.id})`, today);
+                  const capId = (details.purchase_units &&
+                    details.purchase_units[0] &&
+                    details.purchase_units[0].payments &&
+                    details.purchase_units[0].payments.captures &&
+                    details.purchase_units[0].payments.captures[0] &&
+                    details.purchase_units[0].payments.captures[0].id) || details.id;
+                  markUiAsPaid(inv, `PayPal / Card (Txn ${capId})`, today);
                   sendNtfyPush(inv.ntfy, {
                     title: `Payment Received: Invoice #${inv.invoice_number}`,
-                    message: `${cli.name} PAID ${totalFmt} for Invoice #${inv.invoice_number}! (PayPal Txn: ${details.id})`,
+                    message: `${cli.name} PAID ${totalFmt} for Invoice #${inv.invoice_number}! (PayPal Capture ID: ${capId})`,
                     priority: 5,
                     tags: ['moneybag', 'white_check_mark', 'tada']
                   });
                 });
+              },
+              onError: (err) => {
+                errBox.style.display = 'block';
+                errBox.innerHTML = '<strong>Checkout Notice:</strong> PayPal could not complete that session (note: PayPal blocks logging into the same merchant account to pay yourself — choose <strong>Debit or Credit Card</strong> to test guest card entry, or click <strong>Simulate Paid Alert</strong> below).';
+                console.warn('PayPal Checkout Error:', err);
               }
             }).render('#paypal-smart-container');
           }
+        };
+        sdkScript.onerror = () => {
+          smartBox.style.display = 'none';
+          stdForm.style.display = 'block';
         };
         document.head.appendChild(sdkScript);
       }
