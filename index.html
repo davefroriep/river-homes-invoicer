@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1565c0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Invoice — River Homes, LLC</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/png" href="icon-192.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --brand-blue: #1565c0;
+      --brand-dark: #0d47a1;
+      --bg-page: #eef2f6;
+      --card-bg: #ffffff;
+      --text-main: #111827;
+      --text-muted: #5f6b7a;
+      --border-light: #d2d2d2;
+      --success-bg: #ecfdf5;
+      --success-border: #10b981;
+      --success-text: #065f46;
+      --amber-bg: #fffbeb;
+      --amber-border: #f59e0b;
+      --amber-text: #92400e;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Sticky Top Action Bar */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: #ffffff;
+      border-bottom: 1px solid #dde3ea;
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
+      padding: 12px 20px;
+    }
+    .topbar-inner {
+      max-width: 860px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .topbar-logo {
+      height: 36px;
+      width: auto;
+      border-radius: 4px;
+    }
+    .topbar-title {
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--text-main);
+    }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .status-unpaid {
+      background: var(--amber-bg);
+      color: var(--amber-text);
+      border: 1px solid var(--amber-border);
+    }
+    .status-paid {
+      background: var(--success-bg);
+      color: var(--success-text);
+      border: 1px solid var(--success-border);
+    }
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 9px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      text-decoration: none;
+      border: 1px solid transparent;
+      transition: all 0.15s ease;
+    }
+    .btn-outline {
+      background: #ffffff;
+      color: #334155;
+      border-color: #cbd5e1;
+    }
+    .btn-outline:hover {
+      background: #f8fafc;
+      border-color: #94a3b8;
+    }
+    .btn-primary {
+      background: var(--brand-blue);
+      color: #ffffff;
+    }
+    .btn-primary:hover {
+      background: var(--brand-dark);
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 860px;
+      width: 100%;
+      margin: 26px auto;
+      padding: 0 16px;
+      flex: 1;
+    }
+
+    /* Banner Alerts */
+    .banner {
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 14.5px;
+    }
+    .banner-success {
+      background: var(--success-bg);
+      border: 1px solid var(--success-border);
+      color: var(--success-text);
+    }
+    .banner-info {
+      background: #eff6ff;
+      border: 1px solid #93c5fd;
+      color: #1e3a8a;
+    }
+
+    /* Paper Invoice Document (Exact Joist Styling) */
+    .invoice-sheet {
+      background: var(--card-bg);
+      border-radius: 4px;
+      box-shadow: 0 4px 24px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.05);
+      padding: 48px 52px;
+      margin-bottom: 24px;
+    }
+    .doc-label {
+      text-align: center;
+      font-size: 21px;
+      font-weight: 400;
+      color: #c4c4c4;
+      letter-spacing: 0.04em;
+      margin-bottom: 18px;
+    }
+    .top-grid {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 24px;
+      margin-bottom: 28px;
+    }
+    .company-logo {
+      width: 138px;
+      height: auto;
+      display: block;
+    }
+    .bill-to {
+      text-align: right;
+      font-size: 15px;
+      line-height: 1.45;
+    }
+    .bill-to-heading {
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .mid-grid {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 32px;
+      margin-bottom: 38px;
+    }
+    .company-details {
+      font-size: 15px;
+      line-height: 1.45;
+    }
+    .company-name {
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .company-details a {
+      color: inherit;
+      text-decoration: none;
+    }
+    .company-details a:hover {
+      text-decoration: underline;
+    }
+
+    .meta-table {
+      min-width: 300px;
+      font-size: 15px;
+      border-collapse: collapse;
+    }
+    .meta-table td {
+      padding: 3px 0;
+    }
+    .meta-table td:last-child {
+      text-align: right;
+      padding-left: 24px;
+    }
+
+    /* Line Items Table */
+    .items-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 15px;
+    }
+    .items-table thead th {
+      font-weight: 700;
+      text-align: left;
+      padding: 0 0 12px 0;
+      border-bottom: 1.5px solid #000000;
+    }
+    .items-table thead th:last-child {
+      text-align: right;
+      width: 120px;
+    }
+    .items-table tbody tr td {
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border-light);
+      vertical-align: middle;
+    }
+    .items-table tbody tr:last-child td {
+      border-bottom: 1.5px solid #000000;
+    }
+    .items-table tbody td:first-child {
+      padding-right: 24px;
+    }
+    .items-table tbody td:last-child {
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    /* Totals Section */
+    .summary-wrap {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 28px;
+    }
+    .totals-box {
+      width: 340px;
+      font-size: 15.5px;
+    }
+    .totals-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+    }
+    .totals-row.subtotal {
+      border-bottom: 1px solid #808080;
+    }
+    .totals-row.subtotal span:first-child {
+      font-weight: 700;
+    }
+    .totals-row.grand-total {
+      font-weight: 700;
+      padding-top: 12px;
+      font-size: 16.5px;
+    }
+
+    /* Payment Summary Box (when Paid) */
+    .payment-summary-wrap {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 36px;
+    }
+    .payment-summary-box {
+      width: 410px;
+      font-size: 15px;
+    }
+    .ps-title {
+      font-weight: 700;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #808080;
+    }
+    .ps-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 9px 0;
+      border-bottom: 1px solid #808080;
+    }
+    .ps-row.bold {
+      font-weight: 700;
+    }
+    .ps-row.no-border {
+      border-bottom: none;
+    }
+
+    /* Payment Checkout Section */
+    .checkout-card {
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(15, 23, 42, 0.07);
+      padding: 28px 32px;
+      border-top: 4px solid var(--brand-blue);
+    }
+    .checkout-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .checkout-header h2 {
+      font-size: 19px;
+      font-weight: 700;
+    }
+    .checkout-amount {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--brand-blue);
+    }
+
+    .paypal-cta-btn {
+      width: 100%;
+      background: #ffc439;
+      color: #111827;
+      border: 1px solid #f2ba36;
+      border-radius: 6px;
+      padding: 15px 22px;
+      font-size: 16.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: background 0.15s ease, transform 0.08s ease;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    }
+    .paypal-cta-btn:hover {
+      background: #f5b82e;
+    }
+    .card-secondary-btn {
+      width: 100%;
+      margin-top: 12px;
+      background: #1e293b;
+      color: #ffffff;
+      border: none;
+      border-radius: 6px;
+      padding: 14px 22px;
+      font-size: 15.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.15s ease;
+    }
+    .card-secondary-btn:hover {
+      background: #0f172a;
+    }
+    .payment-badges {
+      text-align: center;
+      font-size: 12.5px;
+      color: var(--text-muted);
+      margin-top: 12px;
+    }
+    .alt-payment {
+      margin-top: 22px;
+      padding-top: 16px;
+      border-top: 1px dashed #cbd5e1;
+      font-size: 13.5px;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .test-sim-box {
+      margin-top: 20px;
+      padding: 14px 16px;
+      background: #f8fafc;
+      border: 1px dashed #94a3b8;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      font-size: 13px;
+      color: #475569;
+    }
+
+    /* Loading / Error States */
+    .state-card {
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 48px 32px;
+      text-align: center;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+      margin-top: 40px;
+    }
+    .state-card h2 {
+      margin-bottom: 10px;
+      font-size: 20px;
+    }
+    .state-card p {
+      color: var(--text-muted);
+      font-size: 15px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 24px 16px;
+      font-size: 12px;
+      color: #64748b;
+    }
+    .rev-badge {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: #e2e8f0;
+      color: #475569;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 11px;
+    }
+
+    @media (max-width: 680px) {
+      .invoice-sheet { padding: 28px 20px; }
+      .top-grid, .mid-grid { flex-direction: column; gap: 20px; }
+      .bill-to { text-align: left; }
+      .meta-table { width: 100%; min-width: 0; }
+      .totals-box, .payment-summary-box { width: 100%; }
+      .checkout-card { padding: 22px 18px; }
+    }
+
+    @media print {
+      .topbar, .checkout-card, .banner, footer { display: none !important; }
+      body { background: #fff; }
+      .container { margin: 0; padding: 0; max-width: 100%; }
+      .invoice-sheet { box-shadow: none; padding: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="topbar" id="topbar" style="display:none;">
+    <div class="topbar-inner">
+      <div class="topbar-left">
+        <img src="logo.jpg" alt="River Homes, LLC" class="topbar-logo" />
+        <div>
+          <div class="topbar-title" id="topbar-inv-title">Invoice</div>
+        </div>
+        <span class="status-pill status-unpaid" id="topbar-status">Due Upon Receipt</span>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-outline" id="btn-download-pdf" type="button">
+          ⬇ Download PDF
+        </button>
+        <a href="#checkout-section" class="btn btn-primary" id="btn-jump-pay">
+          Pay Online
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div id="state-box" class="state-card">
+      <h2 id="state-title">Loading Secure Invoice…</h2>
+      <p id="state-desc">Decrypting your River Homes, LLC document.</p>
+    </div>
+
+    <div id="invoice-root" style="display:none;">
+      <div id="paid-banner" class="banner banner-success" style="display:none;">
+        <div style="font-size:20px;">✅</div>
+        <div>
+          <strong>Thank you — Payment Recorded!</strong><br />
+          <span id="paid-banner-detail">Your payment has been received by River Homes, LLC.</span>
+        </div>
+      </div>
+
+      <div id="test-banner" class="banner banner-info" style="display:none;">
+        <div style="font-size:18px;">🧪</div>
+        <div>
+          <strong>Test Invoice Preview</strong> — Opening this page just sent a live <code>Invoice Viewed</code> push notification to your phone via NTFY!
+        </div>
+      </div>
+
+      <section class="invoice-sheet">
+        <div class="doc-label">INVOICE</div>
+
+        <div class="top-grid">
+          <div>
+            <img src="logo.jpg" alt="River Homes, LLC" class="company-logo" />
+          </div>
+          <div class="bill-to">
+            <div class="bill-to-heading">Bill To</div>
+            <div id="client-name"></div>
+            <div id="client-street"></div>
+            <div id="client-city"></div>
+            <div id="client-phone"></div>
+          </div>
+        </div>
+
+        <div class="mid-grid">
+          <div class="company-details">
+            <div class="company-name" id="comp-name">River Homes, LLC</div>
+            <div id="comp-street">799 Rue Ln</div>
+            <div id="comp-city">Toms River , NJ 08753</div>
+            <div>Phone: <a id="comp-phone" href="tel:7326743074">(732) 674-3074</a></div>
+            <div>Email: <a id="comp-email" href="mailto:david@riverhomesnj.com">david@riverhomesnj.com</a></div>
+          </div>
+
+          <table class="meta-table">
+            <tbody>
+              <tr>
+                <td>Payment terms</td>
+                <td id="meta-terms">Due upon receipt</td>
+              </tr>
+              <tr>
+                <td>Invoice #</td>
+                <td id="meta-number"></td>
+              </tr>
+              <tr>
+                <td>Date</td>
+                <td id="meta-date"></td>
+              </tr>
+              <tr>
+                <td>Business / Tax #</td>
+                <td id="meta-license">License #13VH06549100</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <table class="items-table">
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody id="items-tbody"></tbody>
+        </table>
+
+        <div class="summary-wrap">
+          <div class="totals-box">
+            <div class="totals-row subtotal">
+              <span>Subtotal</span>
+              <span id="sum-subtotal"></span>
+            </div>
+            <div class="totals-row grand-total">
+              <span>Total</span>
+              <span id="sum-total"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="payment-summary-wrap" id="payment-summary-wrap" style="display:none;">
+          <div class="payment-summary-box">
+            <div class="ps-title">Payment Summary</div>
+            <div id="ps-rows"></div>
+            <div class="ps-row bold">
+              <span>Paid Total</span>
+              <span id="ps-paid-total"></span>
+            </div>
+            <div class="ps-row bold no-border">
+              <span>Remaining Amount</span>
+              <span id="ps-remaining"></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="checkout-card" id="checkout-section">
+        <div class="checkout-header">
+          <div>
+            <h2>Pay Invoice Online</h2>
+            <div style="font-size:13.5px; color:var(--text-muted);">Secure checkout powered by PayPal — no PayPal account required for card payments</div>
+          </div>
+          <div class="checkout-amount" id="checkout-amount-due"></div>
+        </div>
+
+        <div id="paypal-smart-container" style="display:none;"></div>
+
+        <form id="paypal-std-form" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+          <input type="hidden" name="cmd" value="_xclick" />
+          <input type="hidden" name="business" id="pp-business" value="" />
+          <input type="hidden" name="item_name" id="pp-item-name" value="" />
+          <input type="hidden" name="invoice" id="pp-invoice" value="" />
+          <input type="hidden" name="amount" id="pp-amount" value="" />
+          <input type="hidden" name="currency_code" value="USD" />
+          <input type="hidden" name="no_shipping" value="1" />
+          <input type="hidden" name="no_note" value="0" />
+          <input type="hidden" name="return" id="pp-return" value="" />
+          <input type="hidden" name="cancel_return" id="pp-cancel" value="" />
+
+          <button type="submit" class="paypal-cta-btn" id="btn-paypal-checkout">
+            <span>Pay with PayPal or Venmo</span>
+          </button>
+          <button type="submit" class="card-secondary-btn" id="btn-card-checkout">
+            <span>💳 Pay with Debit or Credit Card</span>
+          </button>
+        </form>
+
+        <div class="payment-badges">
+          🔒 256-bit SSL Encrypted • Visa, Mastercard, Amex, Discover, PayPal &amp; Venmo accepted
+        </div>
+
+        <div class="alt-payment">
+          <span><strong>Check Payable To:</strong> River Homes, LLC (799 Rue Ln, Toms River, NJ 08753)</span>
+          <span><strong>Questions?</strong> Call/Text (732) 674-3074</span>
+        </div>
+
+        <div class="test-sim-box" id="test-sim-box" style="display:none;">
+          <span><strong>🧪 Test Mode Controls:</strong> Verify your urgent <em>Payment Received</em> NTFY alert without charging a real card.</span>
+          <button type="button" class="btn btn-outline" id="btn-simulate-paid">
+            Simulate Paid Alert
+          </button>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <div>River Homes, LLC • Toms River, NJ • NJ HIC License #13VH06549100</div>
+    <div class="rev-badge">Rev v1.0 — 2026-11-11 21:08</div>
+  </footer>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+
+    function b64UrlToBytes(b64url) {
+      let b64 = b64url.replace(/-/g, '+').replace(/_/g, '/');
+      while (b64.length % 4) b64 += '=';
+      const bin = atob(b64);
+      const arr = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+      return arr;
+    }
+
+    function fmtMoney(val) {
+      const n = typeof val === 'number' ? val : parseFloat(String(val).replace(/[^0-9.-]/g, '')) || 0;
+      return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function detectDevice() {
+      const ua = navigator.userAgent || '';
+      if (/iPhone/i.test(ua)) return 'iPhone';
+      if (/iPad/i.test(ua)) return 'iPad';
+      if (/Android/i.test(ua)) return 'Android';
+      if (/Macintosh|Mac OS X/i.test(ua)) return 'Mac';
+      if (/Windows/i.test(ua)) return 'Windows PC';
+      return 'Web Browser';
+    }
+
+    function sendNtfyPush(ntfyCfg, payload) {
+      if (!ntfyCfg || !ntfyCfg.topic) return;
+      const server = (ntfyCfg.server || 'https://ntfy.sh').replace(/\/$/, '');
+      const bodyStr = JSON.stringify({
+        topic: ntfyCfg.topic,
+        title: payload.title,
+        message: payload.message,
+        priority: payload.priority || 3,
+        tags: payload.tags || [],
+        click: window.location.href
+      });
+      try {
+        if (navigator.sendBeacon) {
+          const ok = navigator.sendBeacon(server, new Blob([bodyStr], { type: 'text/plain;charset=UTF-8' }));
+          if (ok) return;
+        }
+      } catch (_) {}
+      fetch(server, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+        body: bodyStr,
+        keepalive: true
+      }).catch(() => {});
+    }
+
+    function markUiAsPaid(inv, methodLabel, paidDateStr) {
+      const totalStr = fmtMoney(inv.total);
+      document.getElementById('topbar-status').textContent = 'Paid in Full';
+      document.getElementById('topbar-status').className = 'status-pill status-paid';
+      document.getElementById('btn-jump-pay').style.display = 'none';
+      document.getElementById('checkout-section').style.display = 'none';
+
+      const paidBanner = document.getElementById('paid-banner');
+      document.getElementById('paid-banner-detail').textContent =
+        `Payment of ${totalStr} for Invoice #${inv.invoice_number} has been recorded (${methodLabel}).`;
+      paidBanner.style.display = 'flex';
+
+      const psWrap = document.getElementById('payment-summary-wrap');
+      const psRows = document.getElementById('ps-rows');
+      psRows.innerHTML = '';
+      const row = document.createElement('div');
+      row.className = 'ps-row';
+      const s1 = document.createElement('span');
+      s1.textContent = `${paidDateStr} - ${methodLabel}`;
+      const s2 = document.createElement('span');
+      s2.textContent = totalStr;
+      row.appendChild(s1);
+      row.appendChild(s2);
+      psRows.appendChild(row);
+
+      document.getElementById('ps-paid-total').textContent = totalStr;
+      document.getElementById('ps-remaining').textContent = '$0.00';
+      psWrap.style.display = 'flex';
+    }
+
+    async function initPortal() {
+      const params = new URLSearchParams(window.location.search);
+      const docId = params.get('i') || params.get('id');
+      const srcParam = params.get('s') || params.get('src') || 'direct';
+      const isPaidReturn = params.get('paid') === '1';
+      const rawHash = (window.location.hash || '').replace(/^#/, '').replace(/^k=/, '').trim();
+
+      const stateTitle = document.getElementById('state-title');
+      const stateDesc = document.getElementById('state-desc');
+
+      if (!docId || !rawHash) {
+        stateTitle.textContent = 'River Homes, LLC — Client Invoice Portal';
+        stateDesc.textContent = 'Please open the full secure invoice link from your email or scan the QR code on your PDF invoice.';
+        return;
+      }
+
+      try {
+        const res = await fetch(`./invoices/${encodeURIComponent(docId)}.json?t=${Date.now()}`, { cache: 'no-store' });
+        if (!res.ok) throw new Error('Invoice document not found.');
+        const encPkg = await res.json();
+
+        const keyBytes = b64UrlToBytes(rawHash);
+        const ivBytes = b64UrlToBytes(encPkg.iv);
+        const ctBytes = b64UrlToBytes(encPkg.ct);
+
+        const cryptoKey = await window.crypto.subtle.importKey(
+          'raw',
+          keyBytes,
+          { name: 'AES-GCM' },
+          false,
+          ['decrypt']
+        );
+        const plainBuf = await window.crypto.subtle.decrypt(
+          { name: 'AES-GCM', iv: ivBytes },
+          cryptoKey,
+          ctBytes
+        );
+        const inv = JSON.parse(new TextDecoder().decode(plainBuf));
+        renderInvoice(inv, docId, srcParam, isPaidReturn);
+      } catch (err) {
+        stateTitle.textContent = 'Unable to Unlock Invoice';
+        stateDesc.textContent = 'Please verify you used the complete link from your River Homes, LLC invoice email, or contact david@riverhomesnj.com.';
+      }
+    }
+
+    function renderInvoice(inv, docId, srcParam, isPaidReturn) {
+      document.getElementById('state-box').style.display = 'none';
+      document.getElementById('topbar').style.display = 'block';
+      document.getElementById('invoice-root').style.display = 'block';
+
+      document.title = `Invoice #${inv.invoice_number} — River Homes, LLC`;
+      document.getElementById('topbar-inv-title').textContent = `Invoice #${inv.invoice_number}`;
+
+      if (inv.is_test) {
+        document.getElementById('test-banner').style.display = 'flex';
+        document.getElementById('test-sim-box').style.display = 'flex';
+      }
+
+      // Company & Client fields
+      const comp = inv.company || {};
+      const cli = inv.client || {};
+      document.getElementById('comp-name').textContent = comp.name || 'River Homes, LLC';
+      document.getElementById('comp-street').textContent = comp.street || '799 Rue Ln';
+      document.getElementById('comp-city').textContent = comp.city_state_zip || 'Toms River , NJ 08753';
+      document.getElementById('comp-phone').textContent = comp.phone || '(732) 674-3074';
+      document.getElementById('comp-email').textContent = comp.email || 'david@riverhomesnj.com';
+
+      document.getElementById('client-name').textContent = cli.name || '';
+      document.getElementById('client-street').textContent = cli.street || '';
+      document.getElementById('client-city').textContent = cli.city_state_zip || '';
+      document.getElementById('client-phone').textContent = cli.phone || '';
+
+      document.getElementById('meta-terms').textContent = inv.payment_terms || 'Due upon receipt';
+      document.getElementById('meta-number').textContent = inv.invoice_number;
+      document.getElementById('meta-date').textContent = inv.date || '';
+      document.getElementById('meta-license').textContent = comp.license || 'License #13VH06549100';
+
+      // Line Items
+      const tbody = document.getElementById('items-tbody');
+      tbody.innerHTML = '';
+      (inv.items || []).forEach((item) => {
+        const tr = document.createElement('tr');
+        const tdDesc = document.createElement('td');
+        tdDesc.textContent = item.description;
+        const tdAmt = document.createElement('td');
+        tdAmt.textContent = fmtMoney(item.amount);
+        tr.appendChild(tdDesc);
+        tr.appendChild(tdAmt);
+        tbody.appendChild(tr);
+      });
+
+      const subtotalFmt = fmtMoney(inv.subtotal);
+      const totalFmt = fmtMoney(inv.total);
+      document.getElementById('sum-subtotal').textContent = subtotalFmt;
+      document.getElementById('sum-total').textContent = totalFmt;
+      document.getElementById('checkout-amount-due').textContent = totalFmt;
+      document.getElementById('btn-jump-pay').textContent = `Pay ${totalFmt}`;
+
+      // PDF Download button (exact embedded PDF bytes)
+      const btnPdf = document.getElementById('btn-download-pdf');
+      if (inv.pdf_b64) {
+        btnPdf.addEventListener('click', () => {
+          const pdfBytes = b64UrlToBytes(inv.pdf_b64);
+          const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = inv.pdf_filename || `riverhomesllc_invoice_${inv.invoice_number}.pdf`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          setTimeout(() => URL.revokeObjectURL(url), 5000);
+        });
+      } else {
+        btnPdf.addEventListener('click', () => window.print());
+      }
+
+      // Configure PayPal Checkout
+      const pp = inv.paypal || {};
+      const baseReturnUrl = window.location.origin + window.location.pathname + `?i=${encodeURIComponent(docId)}`;
+      const hashFragment = window.location.hash;
+
+      document.getElementById('pp-business').value = pp.business_email || comp.email || 'david@riverhomesnj.com';
+      document.getElementById('pp-item-name').value = `River Homes LLC - Invoice #${inv.invoice_number} (${cli.name || 'Client'})`;
+      document.getElementById('pp-invoice').value = String(inv.invoice_number);
+      document.getElementById('pp-amount').value = Number(inv.total).toFixed(2);
+      document.getElementById('pp-return').value = `${baseReturnUrl}&paid=1${hashFragment}`;
+      document.getElementById('pp-cancel').value = `${baseReturnUrl}&canceled=1${hashFragment}`;
+
+      const stdForm = document.getElementById('paypal-std-form');
+      stdForm.addEventListener('submit', () => {
+        sendNtfyPush(inv.ntfy, {
+          title: `Checkout Started: Invoice #${inv.invoice_number}`,
+          message: `${cli.name} clicked Pay Online (${totalFmt}) for Invoice #${inv.invoice_number} -> Redirecting to PayPal`,
+          priority: 4,
+          tags: ['credit_card', 'arrow_right']
+        });
+      });
+
+      // Optional Inline PayPal JS SDK Smart Buttons (if client_id configured)
+      if (pp.client_id) {
+        const sdkScript = document.createElement('script');
+        sdkScript.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(pp.client_id)}&currency=USD&enable-funding=venmo,card`;
+        sdkScript.onload = () => {
+          if (window.paypal) {
+            stdForm.style.display = 'none';
+            const smartBox = document.getElementById('paypal-smart-container');
+            smartBox.style.display = 'block';
+            window.paypal.Buttons({
+              createOrder: (data, actions) => {
+                sendNtfyPush(inv.ntfy, {
+                  title: `Checkout Started: Invoice #${inv.invoice_number}`,
+                  message: `${cli.name} opened PayPal/Card checkout (${totalFmt})`,
+                  priority: 4,
+                  tags: ['credit_card']
+                });
+                return actions.order.create({
+                  purchase_units: [{
+                    description: `River Homes LLC - Invoice #${inv.invoice_number}`,
+                    invoice_id: String(inv.invoice_number),
+                    amount: { value: Number(inv.total).toFixed(2) }
+                  }]
+                });
+              },
+              onApprove: (data, actions) => {
+                return actions.order.capture().then((details) => {
+                  const today = new Date().toLocaleDateString('en-US');
+                  markUiAsPaid(inv, `PayPal / Card (Txn ${details.id})`, today);
+                  sendNtfyPush(inv.ntfy, {
+                    title: `Payment Received: Invoice #${inv.invoice_number}`,
+                    message: `${cli.name} PAID ${totalFmt} for Invoice #${inv.invoice_number}! (PayPal Txn: ${details.id})`,
+                    priority: 5,
+                    tags: ['moneybag', 'white_check_mark', 'tada']
+                  });
+                });
+              }
+            }).render('#paypal-smart-container');
+          }
+        };
+        document.head.appendChild(sdkScript);
+      }
+
+      // Check Paid Status (either stored in invoice JSON or returning from PayPal)
+      const existingPayments = inv.payments || [];
+      if (inv.status === 'paid' || existingPayments.length > 0) {
+        const p0 = existingPayments[0] || { date: inv.date, method: 'Credit Card or PayPal' };
+        markUiAsPaid(inv, p0.method || 'Credit Card or PayPal', p0.date || inv.date);
+      } else if (isPaidReturn) {
+        const today = new Date().toLocaleDateString('en-US');
+        markUiAsPaid(inv, 'Credit Card or PayPal', today);
+        const paidKey = `paid_ntfy_${docId}`;
+        if (!sessionStorage.getItem(paidKey)) {
+          sessionStorage.setItem(paidKey, '1');
+          sendNtfyPush(inv.ntfy, {
+            title: `Payment Submitted: Invoice #${inv.invoice_number}`,
+            message: `${cli.name} completed PayPal checkout (${totalFmt}) for Invoice #${inv.invoice_number}!`,
+            priority: 5,
+            tags: ['moneybag', 'white_check_mark', 'tada']
+          });
+        }
+      }
+
+      // Test Simulation Handler (only active on test invoices)
+      if (inv.is_test) {
+        document.getElementById('btn-simulate-paid').addEventListener('click', () => {
+          const today = new Date().toLocaleDateString('en-US');
+          markUiAsPaid(inv, 'Simulated Test Card / PayPal', today);
+          sendNtfyPush(inv.ntfy, {
+            title: `[TEST] Payment Received: Invoice #${inv.invoice_number}`,
+            message: `${cli.name} paid ${totalFmt} for Invoice #${inv.invoice_number} (Simulated Checkout Test)!`,
+            priority: 5,
+            tags: ['moneybag', 'white_check_mark', 'tada']
+          });
+        });
+      }
+
+      // Fire "Invoice Viewed" NTFY Push (5-minute per-tab cooldown)
+      if (!isPaidReturn) {
+        const viewKey = `viewed_${docId}_${srcParam}`;
+        const lastTs = Number(sessionStorage.getItem(viewKey) || '0');
+        if (Date.now() - lastTs > 5 * 60 * 1000) {
+          sessionStorage.setItem(viewKey, String(Date.now()));
+          const srcLabel = srcParam === 'q' || srcParam === 'pdf' ? 'PDF QR Code' : (srcParam === 'e' || srcParam === 'email' ? 'Email Link' : 'Direct Link');
+          const devLabel = detectDevice();
+          sendNtfyPush(inv.ntfy, {
+            title: `Invoice Viewed: #${inv.invoice_number}`,
+            message: `${cli.name} is viewing Invoice #${inv.invoice_number} (${totalFmt}) via ${srcLabel} [${devLabel}]`,
+            priority: 4,
+            tags: ['eyes', 'page_facing_up']
+          });
+        }
+      }
+    }
+
+    initPortal();
+  </script>
+</body>
+</html>
