@@ -657,7 +657,7 @@
 
   <footer>
     <div>River Homes, LLC • Toms River, NJ • NJ HIC License #13VH06549100</div>
-    <div class="rev-badge">Rev v1.0 — 2026-11-11 21:08</div>
+    <div class="rev-badge">Rev v1.1 — 2026-11-11 21:19</div>
   </footer>
 
   <script>
@@ -748,10 +748,18 @@
 
     async function initPortal() {
       const params = new URLSearchParams(window.location.search);
-      const docId = params.get('i') || params.get('id');
-      const srcParam = params.get('s') || params.get('src') || 'direct';
+      let docId = params.get('i') || params.get('id');
+      let srcParam = params.get('s') || params.get('src') || '';
       const isPaidReturn = params.get('paid') === '1';
-      const rawHash = (window.location.hash || '').replace(/^#/, '').replace(/^k=/, '').trim();
+      let rawHash = (window.location.hash || '').replace(/^#/, '').replace(/^k=/, '').trim();
+
+      // Compact Version-4 QR / Email hash format: #<4-hex-docId><22-char-b64url-key> (26 chars total)
+      if (rawHash.length === 26 && /^[0-9a-f]{4}/i.test(rawHash)) {
+        if (!docId) docId = rawHash.slice(0, 4).toLowerCase();
+        rawHash = rawHash.slice(4);
+        if (!srcParam) srcParam = 'q';
+      }
+      if (!srcParam) srcParam = 'direct';
 
       const stateTitle = document.getElementById('state-title');
       const stateDesc = document.getElementById('state-desc');
